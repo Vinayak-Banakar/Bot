@@ -1,0 +1,90 @@
+import logging
+import os
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from telegram import Update, InputFile
+from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters
+import random
+
+# Your bot's API token from BotFather
+API_TOKEN = '7876648654:AAF8_NP546zZiMCOaTqpWepFSyri-77JudA'
+
+# List of motivational quotes categorized
+quotes = {
+    "inspirational": [
+        "oyye bhai kyazdfdfhal chal",
+        "jshkjghgk",
+    ],
+}
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Use the environment variable or hardcoded token
+TOKEN = API_TOKEN
+
+# Function to start the bot
+async def start(update: Update, context: CallbackContext):
+    await update.message.reply_text(
+        "Welcome! I'm your motivational quotes bot. Use /quote to get a random motivational quote.\n"
+        "You can also request specific types of quotes like /quote success, /quote positivity, etc.\n"
+        "Use /pic to get a motivational image!"
+    )
+
+# Function to get a random motivational quote
+def get_random_quote():
+    category = random.choice(list(quotes.keys()))
+    return random.choice(quotes[category])
+
+# Function to handle /quote command
+async def quote(update: Update, context: CallbackContext):
+    if len(context.args) == 0:
+        # If no category is specified, send a random quote
+        quote = get_random_quote()
+        await update.message.reply_text(quote)
+    else:
+        # If a category is specified, send the respective quote
+        category = context.args[0].lower()
+        if category in quotes:
+            await update.message.reply_text(random.choice(quotes[category]))
+        else:
+            await update.message.reply_text("Sorry, I don't have quotes for that category yet. Try 'inspirational', 'success', or 'life'.")
+
+# Function to send an image when /pic command is used
+async def send_pic(update: Update, context: CallbackContext):
+    # Path to your local image
+    image_path =  r'C:\Users\darsh\OneDrive\Desktop\python bot\pic\ll.png'  # Update with your image path
+    
+    try:
+        # Send the image
+        with open(image_path, 'rb') as photo:
+            await update.message.reply_photo(photo=photo)
+    except FileNotFoundError:
+        await update.message.reply_text("Sorry, the image was not found.")
+    except Exception as e:
+        await update.message.reply_text(f"An error occurred: {e}")
+
+# Function to handle unknown messages
+async def unknown(update: Update, context: CallbackContext):
+    await update.message.reply_text("Sorry, I didn't understand that command. Use /quote to get a motivational quote.")
+
+# Main function to run the bot
+def main():
+    # Create an Application object and pass the bot's token
+    application = Application.builder().token(TOKEN).build()
+
+    # Register command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("quote", quote))
+    application.add_handler(CommandHandler("pic", send_pic))  # Register the /pic command handler
+
+    # Register a handler for unknown messages
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown))
+
+    # Start polling for updates
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
