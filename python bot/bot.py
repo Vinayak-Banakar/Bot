@@ -5,7 +5,7 @@ from telegram.ext import Application, CommandHandler, CallbackContext, MessageHa
 import random
 
 # Your bot's API token from BotFather
-API_TOKEN = '7876648654:AAF8_NP546zZiMCOaTqpWepFSyri-77JudA'
+API_TOKEN = 'API_link'
 
 # List of motivational quotes categorized
 quotes = {
